@@ -1,0 +1,27 @@
+from tortoise import fields
+from tortoise.models import Model
+
+class ResortReport(Model):
+    id = fields.IntField(pk=True)
+    accomodation_name = fields.CharField(max_length=255)
+    villa_id = fields.ForeignKeyField('models.Villa', related_name='resort_reports', null=True)
+    supplier = fields.CharField(max_length=255)
+    resort = fields.CharField(max_length=255)
+    opportunity_name = fields.IntField()
+    lead_passenger = fields.CharField(max_length=255)
+    holiday_start_date = fields.DateField()
+    holiday_end_date = fields.DateField()
+    total_number_of_passenger = fields.IntField()
+    adults = fields.IntField()
+    children = fields.IntField()
+    infants = fields.IntField()
+    flight_arrival_date = fields.DateField()
+    flight_arrival_time = fields.DatetimeField()
+    depature_date = fields.DateField()
+    departure_flight_time = fields.DatetimeField()
+    extras_aggregated = fields.TextField()
+    villa_manager_visit_request = fields.CharField(max_length=255)
+    live_villa_manager = fields.CharField(max_length=255)
+    dt_aff_nane = fields.CharField(max_length=255)
+    resort_report_notes = fields.TextField()
+    resort_report_file = fields.ForeignKeyField('models.ResortReportFile', related_name='resort_reports', null=True) 
