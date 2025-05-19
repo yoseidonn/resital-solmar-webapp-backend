@@ -11,7 +11,7 @@ OUTPUT_DIR = "media/apis_report_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def get_all_outputs() -> List[APISReportOutputSchema]:
-    return [APISReportOutputSchema.model_validate_json(o.json()) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
+    return [APISReportOutputSchema(o) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
 
 async def create_output(user_name: str, apis_report_file_id: int, file_name: str, file_path: str, individual_reservations: List[dict]) -> APISReportOutputSchema:
     output = await APISReportOutput.create(
@@ -22,11 +22,11 @@ async def create_output(user_name: str, apis_report_file_id: int, file_name: str
         individual_reservations=individual_reservations,
         generatedDate=datetime.now(),
     )
-    return APISReportOutputSchema.model_validate_json(output.json())
+    return APISReportOutputSchema(output)
 
 async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutputSchema]:
     outputs = await APISReportOutput.filter(apis_report_file_id=apis_report_file_id).all().prefetch_related('apis_report_file')
-    return [APISReportOutputSchema.model_validate_json(o.json()) for o in outputs]
+    return [APISReportOutputSchema(o) for o in outputs]
 
 async def generate_apis_report_output(
     apis_report_file: APISReportFile,

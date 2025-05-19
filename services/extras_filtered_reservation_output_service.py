@@ -12,7 +12,7 @@ OUTPUT_DIR = "media/extras_filtered_reservation_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def get_all_outputs() -> List[ExtrasFilteredReservationOutputSchema]:
-    return [ExtrasFilteredReservationOutputSchema.model_validate_json(o.json()) for o in await ExtrasFilteredReservationOutput.all()]
+    return [ExtrasFilteredReservationOutputSchema(o) for o in await ExtrasFilteredReservationOutput.all()]
 
 async def create_output(resort_report_file_id: int, file_name: str, file_path: str, applied_filters: Dict[str, List[str]], grouped_reservations: Dict[str, Any]) -> ExtrasFilteredReservationOutput:
     output = await ExtrasFilteredReservationOutput.create(
@@ -24,7 +24,7 @@ async def create_output(resort_report_file_id: int, file_name: str, file_path: s
         grouped_reservations=grouped_reservations,
         file_path=file_path
     )
-    return ExtrasFilteredReservationOutputSchema.model_validate_json(output.json())
+    return ExtrasFilteredReservationOutputSchema(output)
 
 async def generate_extras_filtered_reservation_summary(resort_report_file: ResortReportFile, filters: Dict[str, List[str]], headers: List[str], individual_villa_entries: List[Any] = None) -> Dict[str, str]:
     """
@@ -66,8 +66,9 @@ def _create_excel_file(file_path: str, grouped: Dict[str, Any], headers: List[st
         ws.append([])
     wb.save(file_path)
 
-async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutput]:
-    return await ExtrasFilteredReservationOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutputSchema]:
+    outputs = await ExtrasFilteredReservationOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    return [ExtrasFilteredReservationOutputSchema(o) for o in outputs]
 
 async def get_file_path(output_id: str) -> str:
     output = await ExtrasFilteredReservationOutput.get_or_none(id=output_id).prefetch_related('resort_report_file')

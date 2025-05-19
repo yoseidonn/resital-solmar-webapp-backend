@@ -20,10 +20,11 @@ async def create_output(user_name: str, resort_report_file_id: int, content: str
         file_path=file_path,
         generatedDate=datetime.now(timezone.utc),
     )
-    return CaretakerExtrasViewOutputSchema.model_validate_json(output.json())
+    return CaretakerExtrasViewOutputSchema(output)
 
-async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutput]:
-    return await CaretakerExtrasViewOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutputSchema]:
+    outputs = await CaretakerExtrasViewOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    return [CaretakerExtrasViewOutputSchema(o) for o in outputs]
 
 async def generate_caretaker_extras_view_output(resort_report_file: ResortReportFile, selected_users: List[Any], headers: List[str], individual_villa_entries: List[Any] = None) -> Dict[str, str]:
     """
@@ -84,4 +85,3 @@ async def generate_caretaker_extras_view_output(resort_report_file: ResortReport
         file_name=file_name,
         file_path=file_path,
     )
-    return outputs
