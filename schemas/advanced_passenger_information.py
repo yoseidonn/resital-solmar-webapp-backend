@@ -21,6 +21,7 @@ class AdvancedPassengerInformationBase(BaseModel):
     villa_id: Optional[int]
     apis_report_file: Optional[int]
 
+
 class AdvancedPassengerInformationCreate(AdvancedPassengerInformationBase):
     pass
 
