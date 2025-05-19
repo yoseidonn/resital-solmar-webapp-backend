@@ -12,7 +12,6 @@ class IndividualVillaEntry(BaseModel):
 class APISReportOutputGenerateRequest(BaseModel):
     opportunity_name: str
     headers: List[str]
-    individual_villa_entries: List[IndividualVillaEntry] = []
 
 class APISReportOutputSchema(BaseModel):
     id: Optional[int]

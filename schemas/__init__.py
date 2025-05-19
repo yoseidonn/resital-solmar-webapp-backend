@@ -4,5 +4,6 @@ from .resort_report_file import ResortReportFileBase, ResortReportFileCreate, Re
 from .resort_report import ResortReportBase, ResortReportCreate, ResortReportRead
 from .apis_report_file import APISReportFileBase, APISReportFileCreate, APISReportFileRead
 from .advanced_passenger_information import AdvancedPassengerInformationBase, AdvancedPassengerInformationCreate, AdvancedPassengerInformationRead
-from .resort_report_output import ResortReportOutputSchema
+from .caretaker_extras_view_output import CaretakerExtrasViewOutputSchema
 from .apis_report_output import APISReportOutputSchema 
+from .extras_filtered_reservation_output import ExtrasFilteredReservationOutputSchema 

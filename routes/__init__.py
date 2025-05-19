@@ -4,5 +4,6 @@ from .resort_report_file import router as resort_report_file_router
 from .resort_report import router as resort_report_router
 from .apis_report_file import router as apis_report_file_router
 from .advanced_passenger_information import router as advanced_passenger_information_router
-from .resort_report_output import router as resort_report_output_router
+from .caretaker_extras_view_output import router as caretaker_extras_view_output_router
 from .apis_report_output import router as apis_report_output_router 
+from .extras_filtered_reservation_output import router as extras_filtered_reservation_output_router 

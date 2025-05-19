@@ -2,9 +2,9 @@ from tortoise import fields
 from tortoise.models import Model
 from models import ResortReportFile
 
-class ResortReportOutput(Model):
+class CaretakerExtrasViewOutput(Model):
     id = fields.CharField(pk=True, max_length=64)
-    resort_report_file = fields.ForeignKeyField('models.ResortReportFile', related_name='outputs')
+    resort_report_file = fields.ForeignKeyField('models.ResortReportFile', related_name='caretaker_extras_view_outputs')
     fileName = fields.CharField(max_length=255)
     generatedDate = fields.DatetimeField()
     messages = fields.JSONField(null=True)
