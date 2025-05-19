@@ -20,26 +20,26 @@ async def upload_resort_report_file(file: UploadFile = File(...)):
 @router.post("/", response_model=ResortReportFileRead)
 async def create_resort_report_file(file: ResortReportFileCreate):
     obj = await resort_report_file_service.create(file)
-    return ResortReportFileRead.model_validate_json(obj.model_dump_json())
+    return obj
 
 @router.get("/", response_model=List[ResortReportFileRead])
 async def list_resort_report_files():
     files = await resort_report_file_service.list_all()
-    return [ResortReportFileRead.model_validate_json(f.json()) for f in files]
+    return files
 
 @router.get("/{file_id}", response_model=ResortReportFileRead)
 async def get_resort_report_file(file_id: int):
     file = await resort_report_file_service.get_by_id(file_id)
     if not file:
         raise HTTPException(status_code=404, detail="ResortReportFile not found")
-    return ResortReportFileRead.model_validate_json(file.model_dump_json())
+    return file
 
 @router.put("/{file_id}", response_model=ResortReportFileRead)
 async def update_resort_report_file(file_id: int, file: ResortReportFileCreate):
     obj = await resort_report_file_service.update(file_id, file)
     if not obj:
         raise HTTPException(status_code=404, detail="ResortReportFile not found")
-    return ResortReportFileRead.model_validate_json(obj.model_dump_json())
+    return obj
 
 @router.delete("/{file_id}")
 async def delete_resort_report_file(file_id: int):
