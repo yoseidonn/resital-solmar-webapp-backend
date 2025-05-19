@@ -8,26 +8,26 @@ router = APIRouter()
 @router.post("/", response_model=ResortReportRead)
 async def create_resort_report(report: ResortReportCreate):
     obj = await resort_report_service.create(report)
-    return ResortReportRead.model_validate_json(obj.json()) 
+    return obj
 
 @router.get("/", response_model=List[ResortReportRead])
 async def list_resort_reports():
     reports = await resort_report_service.list_all()
-    return [ResortReportRead.model_validate_json(r.json()) for r in reports]
+    return reports
 
 @router.get("/{report_id}", response_model=ResortReportRead)
 async def get_resort_report(report_id: int):
     report = await resort_report_service.get_by_id(report_id)
     if not report:
         raise HTTPException(status_code=404, detail="ResortReport not found")
-    return ResortReportRead.model_validate_json(report.json())
+    return report
 
 @router.put("/{report_id}", response_model=ResortReportRead)
 async def update_resort_report(report_id: int, report: ResortReportCreate):
     obj = await resort_report_service.update(report_id, report)
     if not obj:
         raise HTTPException(status_code=404, detail="ResortReport not found")
-    return ResortReportRead.model_validate_json(obj.json())
+    return obj
 
 @router.delete("/{report_id}")
 async def delete_resort_report(report_id: int):
