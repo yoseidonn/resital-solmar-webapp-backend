@@ -1,6 +1,5 @@
 from models import APISReportOutput, APISReportFile, AdvancedPassengerInformation
-from schemas.apis_report_output import APISReportOutputGenerateRequest
-from fastapi.responses import StreamingResponse
+from schemas.apis_report_output import APISReportOutputGenerateRequest, APISReportOutputSchema
 from typing import List, Dict, Any
 import io
 import openpyxl
@@ -11,20 +10,28 @@ from datetime import datetime
 OUTPUT_DIR = "media/apis_report_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-async def create_output(user_name: str, apis_report_file_id: int, content: str) -> APISReportOutput:
-    return await APISReportOutput.create(
+async def get_all_outputs() -> List[APISReportOutputSchema]:
+    return [APISReportOutputSchema.model_validate_json(o.json()) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
+
+async def create_output(user_name: str, apis_report_file_id: int, file_name: str, file_path: str, individual_reservations: List[dict]) -> APISReportOutputSchema:
+    output = await APISReportOutput.create(
         user_name=user_name,
         apis_report_file_id=apis_report_file_id,
-        content=content
+        fileName=file_name,
+        file_path=file_path,
+        individual_reservations=individual_reservations,
+        generatedDate=datetime.now(),
     )
+    return APISReportOutputSchema.model_validate_json(output.json())
 
-async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutput]:
-    return await APISReportOutput.filter(apis_report_file_id=apis_report_file_id).all()
+async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutputSchema]:
+    outputs = await APISReportOutput.filter(apis_report_file_id=apis_report_file_id).all().prefetch_related('apis_report_file')
+    return [APISReportOutputSchema.model_validate_json(o.json()) for o in outputs]
 
 async def generate_apis_report_output(
     apis_report_file: APISReportFile,
     request: APISReportOutputGenerateRequest
-) -> StreamingResponse:
+) -> APISReportOutputSchema:
     # Fetch DB records
     records = await AdvancedPassengerInformation.filter(
         apis_file_id=apis_report_file.id,
@@ -33,34 +40,32 @@ async def generate_apis_report_output(
     # Prepare Excel
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append(request.headers)
+    ws.title = "APIS Report"
+    headers = request.headers
+    ws.append(headers)
     for api in records:
-        row = [getattr(api, _to_snake_case(h), "") for h in request.headers]
-        ws.append(row)
-    # Add individual villa entries (if not already present)
+        ws.append([getattr(api, header, '') for header in headers])
     for entry in request.individual_villa_entries:
-        if not any(str(api.opportunity_name) == entry.opportunity_name for api in records):
-            row = [getattr(entry, _to_snake_case(h), getattr(entry, h, "")) for h in request.headers]
-            ws.append(row)
+        ws.append([getattr(entry, header, '') for header in headers])
     # Save Excel to disk
     filename = f"apis_report_output_{apis_report_file.id}_{request.opportunity_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     file_path = os.path.join(OUTPUT_DIR, filename)
     wb.save(file_path)
     # Save output to DB
-    await APISReportOutput.create(
-        apis_report_file=apis_report_file,
+    output = await create_output(
+        user_name="system",
+        apis_report_file_id=apis_report_file.id,
+        file_name=filename,
         file_path=file_path,
         individual_reservations=[entry.dict() for entry in request.individual_villa_entries],
     )
-    # Stream Excel
-    stream = io.BytesIO()
-    wb.save(stream)
-    stream.seek(0)
-    return StreamingResponse(
-        stream,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+    return output
+
+async def get_file_path(output_id: str) -> str:
+    output = await APISReportOutput.get_or_none(fileName=output_id).prefetch_related('apis_report_file')
+    if not output:
+        raise FileNotFoundError("Output not found")
+    return output.file_path
 
 def _to_snake_case(header: str) -> str:
     return header.lower().replace(" ", "_") 
