@@ -11,7 +11,7 @@ router = APIRouter()
 @router.get("/")
 async def get_all_outputs():
     outputs = await extras_filtered_reservation_output_service.get_all_outputs()
-    return [ExtrasFilteredReservationOutputSchema.model_validate_json(o.json()) for o in outputs]
+    return outputs
 
 @router.post("/generate/{file_id}", response_model=dict)
 async def generate_output(file_id: int, body: Dict = Body(...)):
@@ -28,7 +28,7 @@ async def generate_output(file_id: int, body: Dict = Body(...)):
 @router.get("/by-file/{file_id}", response_model=List[ExtrasFilteredReservationOutputSchema])
 async def get_outputs_by_file(file_id: int):
     outputs = await extras_filtered_reservation_output_service.get_outputs_by_file(file_id)
-    return [ExtrasFilteredReservationOutputSchema.model_validate_json(o.json()) for o in outputs]
+    return outputs
 
 @router.get("/download/{output_id}")
 async def download_output_file(output_id: str):
