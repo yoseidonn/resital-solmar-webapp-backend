@@ -22,7 +22,7 @@ async def generate_outputs(file_id: int, body: CaretakerExtrasViewOutputGenerate
 @router.get("/by-file/{file_id}", response_model=List[CaretakerExtrasViewOutputSchema])
 async def get_outputs_by_file(file_id: int):
     outputs = await get_outputs_by_file(file_id)
-    return [CaretakerExtrasViewOutputSchema.model_validate_json(o.json()) for o in outputs]
+    return outputs
 
 @router.get("/", response_model=List[CaretakerExtrasViewOutputSchema])
 async def get_all_outputs():
