@@ -3,7 +3,7 @@ from tortoise.models import Model
 from models import ResortReportFile
 
 class CaretakerExtrasViewOutput(Model):
-    id = fields.CharField(pk=True, max_length=64)
+    id = fields.IntField(pk=True)
     resort_report_file = fields.ForeignKeyField('models.ResortReportFile', related_name='caretaker_extras_view_outputs')
     fileName = fields.CharField(max_length=255)
     generatedDate = fields.DatetimeField()

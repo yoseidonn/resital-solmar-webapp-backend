@@ -8,7 +8,7 @@ class ExtrasFilteredReservationOutputGenerateRequest(BaseModel):
     headers: List[str]
     individual_villa_entries: List[IndividualVillaEntry] = []
 
-class ExtrasFilteredReservationOutputSchema(BaseModel):
+class ExtrasFilteredReservationOutput(BaseModel):
     id: Optional[str]
     resort_report_file: int
     file_name: str

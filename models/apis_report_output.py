@@ -2,7 +2,7 @@ from tortoise import fields
 from tortoise.models import Model
 
 class APISReportOutput(Model):
-    id = fields.CharField(pk=True, max_length=64)
+    id = fields.IntField(pk=True)
     apis_report_file = fields.ForeignKeyField('models.APISReportFile', related_name='outputs')
     fileName = fields.CharField(max_length=255)
     generatedDate = fields.DatetimeField()

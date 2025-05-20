@@ -4,19 +4,19 @@ from typing import List, Optional
 
 async def get_by_id(report_id: int) -> Optional[ResortReportRead]:
     obj = await ResortReport.get_or_none(id=report_id)
-    return ResortReportRead(obj) if obj else None
+    return ResortReportRead.model_validate(obj) if obj else None
 
 async def get_reports_by_file(resort_report_file: ResortReportFile) -> List[ResortReportRead]:
     objs = await ResortReport.filter(resort_report_file=resort_report_file).all()
-    return [ResortReportRead(o) for o in objs]
+    return [ResortReportRead.model_validate(o) for o in objs]
 
 async def list_all() -> List[ResortReportRead]:
     objs = await ResortReport.all()
-    return [ResortReportRead(o) for o in objs]
+    return [ResortReportRead.model_validate(o) for o in objs]
 
 async def create(data: ResortReportCreate) -> ResortReportRead:
     obj = await ResortReport.create(**data.model_dump())
-    return ResortReportRead(obj)
+    return ResortReportRead.model_validate(obj)
 
 async def update(report_id: int, data: ResortReportCreate) -> Optional[ResortReportRead]:
     obj = await ResortReport.get_or_none(id=report_id)
@@ -24,7 +24,7 @@ async def update(report_id: int, data: ResortReportCreate) -> Optional[ResortRep
         return None
     await obj.update_from_dict(data.model_dump())
     await obj.save()
-    return ResortReportRead(obj)
+    return ResortReportRead.model_validate(obj)
 
 async def delete(report_id: int) -> bool:
     deleted = await ResortReport.filter(id=report_id).delete()

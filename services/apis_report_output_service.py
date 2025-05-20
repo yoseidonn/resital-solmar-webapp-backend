@@ -1,5 +1,5 @@
 from models import APISReportOutput, APISReportFile, AdvancedPassengerInformation
-from schemas.apis_report_output import APISReportOutputGenerateRequest, APISReportOutputSchema
+from schemas.apis_report_output import APISReportOutputGenerateRequest, APISReportOutput
 from typing import List, Dict, Any
 import io
 import openpyxl
@@ -10,10 +10,15 @@ from datetime import datetime
 OUTPUT_DIR = "media/apis_report_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-async def get_all_outputs() -> List[APISReportOutputSchema]:
-    return [APISReportOutputSchema(o) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
+async def get_all_outputs() -> List[APISReportOutput]:
+    return [APISReportOutput.model_validate(o) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
 
-async def create_output(user_name: str, apis_report_file_id: int, file_name: str, file_path: str, individual_reservations: List[dict]) -> APISReportOutputSchema:
+async def create_output(user_name: str, 
+                        apis_report_file_id: int, 
+                        file_name: str, 
+                        file_path: str, 
+                        individual_reservations: List[dict]
+                        ) -> APISReportOutput:
     output = await APISReportOutput.create(
         user_name=user_name,
         apis_report_file_id=apis_report_file_id,
@@ -22,16 +27,16 @@ async def create_output(user_name: str, apis_report_file_id: int, file_name: str
         individual_reservations=individual_reservations,
         generatedDate=datetime.now(),
     )
-    return APISReportOutputSchema(output)
+    return APISReportOutput.model_validate(output)
 
-async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutputSchema]:
+async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutput]:
     outputs = await APISReportOutput.filter(apis_report_file_id=apis_report_file_id).all().prefetch_related('apis_report_file')
-    return [APISReportOutputSchema(o) for o in outputs]
+    return [APISReportOutput.model_validate(o) for o in outputs]
 
 async def generate_apis_report_output(
     apis_report_file: APISReportFile,
     request: APISReportOutputGenerateRequest
-) -> APISReportOutputSchema:
+) -> APISReportOutput:
     # Fetch DB records
     records = await AdvancedPassengerInformation.filter(
         apis_file_id=apis_report_file.id,
