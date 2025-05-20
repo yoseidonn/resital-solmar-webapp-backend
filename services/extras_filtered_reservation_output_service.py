@@ -1,22 +1,25 @@
-from models import ExtrasFilteredReservationOutput, ResortReportFile
-from schemas import ExtrasFilteredReservationOutputSchema
+from models import ExtrasFilteredReservationOutput as ExtrasFilteredReservationOutputModel, ResortReportFile
+from schemas import ExtrasFilteredReservationOutput
 from services.resort_report_service import get_reports_by_file
 from utils import filtering
 from typing import List, Dict, Any
 from datetime import datetime, timezone
-import uuid
 import openpyxl
 import os
 
 OUTPUT_DIR = "media/extras_filtered_reservation_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-async def get_all_outputs() -> List[ExtrasFilteredReservationOutputSchema]:
-    return [ExtrasFilteredReservationOutputSchema(o) for o in await ExtrasFilteredReservationOutput.all()]
+async def get_all_outputs() -> List[ExtrasFilteredReservationOutput]:
+    return [ExtrasFilteredReservationOutput.model_validate(o) for o in await ExtrasFilteredReservationOutputModel.all()]
 
-async def create_output(resort_report_file_id: int, file_name: str, file_path: str, applied_filters: Dict[str, List[str]], grouped_reservations: Dict[str, Any]) -> ExtrasFilteredReservationOutput:
-    output = await ExtrasFilteredReservationOutput.create(
-        id=str(uuid.uuid4()),
+async def create_output(resort_report_file_id: int, 
+                        file_name: str, 
+                        file_path: str, 
+                        applied_filters: Dict[str, List[str]], 
+                        grouped_reservations: Dict[str, Any]
+                        ) -> ExtrasFilteredReservationOutput:
+    output = await ExtrasFilteredReservationOutputModel.create(
         resort_report_file_id=resort_report_file_id,
         file_name=file_name,
         generated_date=datetime.now(timezone.utc),
@@ -24,9 +27,13 @@ async def create_output(resort_report_file_id: int, file_name: str, file_path: s
         grouped_reservations=grouped_reservations,
         file_path=file_path
     )
-    return ExtrasFilteredReservationOutputSchema(output)
+    return ExtrasFilteredReservationOutput.model_validate(output)
 
-async def generate_extras_filtered_reservation_summary(resort_report_file: ResortReportFile, filters: Dict[str, List[str]], headers: List[str], individual_villa_entries: List[Any] = None) -> Dict[str, str]:
+async def generate_extras_filtered_reservation_summary(resort_report_file: ResortReportFile, 
+                                                       filters: Dict[str, List[str]], 
+                                                       headers: List[str], 
+                                                       individual_villa_entries: List[Any] = None
+                                                       ) -> Dict[str, str]:
     """
     Generate a filtered reservation summary based on extras for each villa.
     filters: Dict[villa_id, List[extras]]
@@ -66,12 +73,12 @@ def _create_excel_file(file_path: str, grouped: Dict[str, Any], headers: List[st
         ws.append([])
     wb.save(file_path)
 
-async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutputSchema]:
-    outputs = await ExtrasFilteredReservationOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
-    return [ExtrasFilteredReservationOutputSchema(o) for o in outputs]
+async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutput]:
+    outputs = await ExtrasFilteredReservationOutputModel.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    return [ExtrasFilteredReservationOutput.model_validate(o) for o in outputs]
 
 async def get_file_path(output_id: str) -> str:
-    output = await ExtrasFilteredReservationOutput.get_or_none(id=output_id).prefetch_related('resort_report_file')
+    output = await ExtrasFilteredReservationOutputModel.get_or_none(id=output_id).prefetch_related('resort_report_file')
     if not output:
         raise FileNotFoundError("Output not found")
     return output.file_path

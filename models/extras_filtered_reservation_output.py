@@ -2,7 +2,7 @@ from tortoise import fields
 from tortoise.models import Model
 
 class ExtrasFilteredReservationOutput(Model):
-    id = fields.CharField(pk=True, max_length=64)
+    id = fields.IntField(pk=True)
     resort_report_file = fields.ForeignKeyField('models.ResortReportFile', related_name='extras_filtered_outputs')
     file_name = fields.CharField(max_length=255)
     generated_date = fields.DatetimeField()

@@ -13,7 +13,7 @@ class APISReportOutputGenerateRequest(BaseModel):
     opportunity_name: str
     headers: List[str]
 
-class APISReportOutputSchema(BaseModel):
+class APISReportOutput(BaseModel):
     id: Optional[int]
     apis_report_file: int
     file_path: str

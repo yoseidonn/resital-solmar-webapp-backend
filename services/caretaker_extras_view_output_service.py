@@ -1,5 +1,5 @@
-from models import CaretakerExtrasViewOutput, ResortReportFile
-from schemas import CaretakerExtrasViewOutputSchema
+from models import CaretakerExtrasViewOutput as CaretakerExtrasViewOutputModel, ResortReportFile
+from schemas import CaretakerExtrasViewOutput
 from services.resort_report_service import get_reports_by_file
 from utils import filtering
 from tortoise.transactions import in_transaction
@@ -12,7 +12,7 @@ OUTPUT_DIR = "media/caretaker_extras_view_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def create_output(user_name: str, resort_report_file_id: int, content: str, file_name: str, file_path: str) -> CaretakerExtrasViewOutput:
-    output = await CaretakerExtrasViewOutput.create(
+    output = await CaretakerExtrasViewOutputModel.create(
         user_name=user_name,
         resort_report_file_id=resort_report_file_id,
         content=content,
@@ -20,13 +20,17 @@ async def create_output(user_name: str, resort_report_file_id: int, content: str
         file_path=file_path,
         generatedDate=datetime.now(timezone.utc),
     )
-    return CaretakerExtrasViewOutputSchema(output)
+    return CaretakerExtrasViewOutput.model_validate(output)
 
-async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutputSchema]:
-    outputs = await CaretakerExtrasViewOutput.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
-    return [CaretakerExtrasViewOutputSchema(o) for o in outputs]
+async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutput]:
+    outputs = await CaretakerExtrasViewOutputModel.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    return [CaretakerExtrasViewOutput.model_validate(o) for o in outputs]
 
-async def generate_caretaker_extras_view_output(resort_report_file: ResortReportFile, selected_users: List[Any], headers: List[str], individual_villa_entries: List[Any] = None) -> Dict[str, str]:
+async def generate_caretaker_extras_view_output(resort_report_file: ResortReportFile, 
+                                                selected_users: List[Any], 
+                                                headers: List[str], 
+                                                individual_villa_entries: List[Any] = None
+                                                ) -> Dict[str, str]:
     """
     For each user, generate a formatted caretaker extras view output, save it, and return all outputs as a dict.
     selected_users: List of user objects, each with .name, .villa_assignments, .rules

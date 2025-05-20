@@ -4,15 +4,15 @@ from typing import List, Optional
 
 async def get_by_id(villa_id: int) -> Optional[VillaRead]:
     obj = await Villa.get_or_none(id=villa_id)
-    return VillaRead(obj) if obj else None
+    return VillaRead.model_validate(obj) if obj else None
 
 async def list_all() -> List[VillaRead]:
     objs = await Villa.all()
-    return [VillaRead(o) for o in objs]
+    return [VillaRead.model_validate(o) for o in objs]
 
 async def create(data: VillaCreate) -> VillaRead:
     obj = await Villa.create(**data.model_dump())
-    return VillaRead(obj)
+    return VillaRead.model_validate(obj)
 
 async def update(villa_id: int, data: VillaCreate) -> Optional[VillaRead]:
     obj = await Villa.get_or_none(id=villa_id)
@@ -20,7 +20,7 @@ async def update(villa_id: int, data: VillaCreate) -> Optional[VillaRead]:
         return None
     await obj.update_from_dict(data.model_dump())
     await obj.save()
-    return VillaRead(obj)
+    return VillaRead.model_validate(obj)
 
 async def delete(villa_id: int) -> bool:
     deleted = await Villa.filter(id=villa_id).delete()

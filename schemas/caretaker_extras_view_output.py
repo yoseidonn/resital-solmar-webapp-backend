@@ -8,7 +8,7 @@ class CaretakerExtrasViewOutputGenerateRequest(BaseModel):
     headers: List[str]
     individual_villa_entries: List[IndividualVillaEntry] = []
 
-class CaretakerExtrasViewOutputSchema(BaseModel):
+class CaretakerExtrasViewOutput(BaseModel):
     id: Optional[int]
     user_name: str
     resort_report_file: int
