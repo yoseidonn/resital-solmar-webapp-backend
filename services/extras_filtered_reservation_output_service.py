@@ -74,11 +74,11 @@ def _create_excel_file(file_path: str, grouped: Dict[str, Any], headers: List[st
     wb.save(file_path)
 
 async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutput]:
-    outputs = await ExtrasFilteredReservationOutputModel.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    outputs = await ExtrasFilteredReservationOutputModel.filter(resort_report_file_id=resort_report_file_id).all()
     return [ExtrasFilteredReservationOutput.model_validate(o) for o in outputs]
 
 async def get_file_path(output_id: str) -> str:
-    output = await ExtrasFilteredReservationOutputModel.get_or_none(id=output_id).prefetch_related('resort_report_file')
+    output = await ExtrasFilteredReservationOutputModel.get_or_none(id=output_id)
     if not output:
         raise FileNotFoundError("Output not found")
     return output.file_path

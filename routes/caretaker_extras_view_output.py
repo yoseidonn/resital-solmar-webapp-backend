@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Body
-from models import ResortReportFile, CaretakerExtrasViewOutput
-from schemas.caretaker_extras_view_output import CaretakerExtrasViewOutputSchema, CaretakerExtrasViewOutputGenerateRequest  
+from models import ResortReportFile, CaretakerExtrasViewOutput as CaretakerExtrasViewOutputModel
+from schemas.caretaker_extras_view_output import CaretakerExtrasViewOutput, CaretakerExtrasViewOutputGenerateRequest  
 from services.caretaker_extras_view_output_service import generate_caretaker_extras_view_output, get_outputs_by_file
 from typing import List
 
@@ -19,12 +19,12 @@ async def generate_outputs(file_id: int, body: CaretakerExtrasViewOutputGenerate
     )
     return outputs
 
-@router.get("/by-file/{file_id}", response_model=List[CaretakerExtrasViewOutputSchema])
+@router.get("/by-file/{file_id}", response_model=List[CaretakerExtrasViewOutput])
 async def get_outputs_by_file(file_id: int):
     outputs = await get_outputs_by_file(file_id)
     return outputs
 
-@router.get("/", response_model=List[CaretakerExtrasViewOutputSchema])
+@router.get("/", response_model=List[CaretakerExtrasViewOutput])
 async def get_all_outputs():
-    outputs = await CaretakerExtrasViewOutput.all()
-    return [CaretakerExtrasViewOutputSchema.model_validate_json(o.json()) for o in outputs] 
+    outputs = await CaretakerExtrasViewOutputModel.all()
+    return [CaretakerExtrasViewOutput.model_validate(o) for o in outputs] 

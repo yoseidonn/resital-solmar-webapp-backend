@@ -2,14 +2,19 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class CareTakerBase(BaseModel):
-    created_at: datetime
     name: str
     phone_number: str
 
 class CareTakerCreate(CareTakerBase):
-    pass
+    id: int
+    assigned_villas: dict[int, list[str]]
+
+class CareTakerUpdate(CareTakerBase):
+    id: int
+    assigned_villas: dict[int, list[str]]
 
 class CareTakerRead(CareTakerBase):
     id: int
+    created_at: datetime
     class Config:
         from_attributes = True 

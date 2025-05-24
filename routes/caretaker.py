@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from schemas import CareTakerCreate, CareTakerRead
+from schemas import CareTakerCreate, CareTakerRead, CareTakerUpdate
 from typing import List
 from services import caretaker_service
 
@@ -23,7 +23,7 @@ async def get_caretaker(caretaker_id: int):
     return caretaker
 
 @router.put("/{caretaker_id}", response_model=CareTakerRead)
-async def update_caretaker(caretaker_id: int, caretaker: CareTakerCreate):
+async def update_caretaker(caretaker_id: int, caretaker: CareTakerUpdate):
     obj = await caretaker_service.update(caretaker_id, caretaker)
     if not obj:
         raise HTTPException(status_code=404, detail="CareTaker not found")
@@ -34,4 +34,4 @@ async def delete_caretaker(caretaker_id: int):
     deleted = await caretaker_service.delete(caretaker_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="CareTaker not found")
-    return {"ok": True} 
+    return {"success": True} 

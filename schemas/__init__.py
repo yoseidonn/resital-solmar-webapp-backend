@@ -1,4 +1,4 @@
-from .caretaker import CareTakerBase, CareTakerCreate, CareTakerRead
+from .caretaker import CareTakerBase, CareTakerCreate, CareTakerRead, CareTakerUpdate
 from .villa import VillaBase, VillaCreate, VillaRead
 from .resort_report_file import ResortReportFileBase, ResortReportFileCreate, ResortReportFileRead
 from .resort_report import ResortReportBase, ResortReportCreate, ResortReportRead

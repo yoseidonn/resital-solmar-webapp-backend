@@ -1,4 +1,4 @@
-from models import APISReportOutput, APISReportFile, AdvancedPassengerInformation
+from models import APISReportOutput as APISReportOutputModel, APISReportFile as APISReportFileModel, AdvancedPassengerInformation as AdvancedPassengerInformationModel
 from schemas.apis_report_output import APISReportOutputGenerateRequest, APISReportOutput
 from typing import List, Dict, Any
 import io
@@ -11,7 +11,7 @@ OUTPUT_DIR = "media/apis_report_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def get_all_outputs() -> List[APISReportOutput]:
-    return [APISReportOutput.model_validate(o) for o in await APISReportOutput.all().prefetch_related('apis_report_file')]
+    return [APISReportOutput.model_validate(o) for o in await APISReportOutputModel.all()]
 
 async def create_output(user_name: str, 
                         apis_report_file_id: int, 
@@ -19,7 +19,7 @@ async def create_output(user_name: str,
                         file_path: str, 
                         individual_reservations: List[dict]
                         ) -> APISReportOutput:
-    output = await APISReportOutput.create(
+    output = await APISReportOutputModel.create(
         user_name=user_name,
         apis_report_file_id=apis_report_file_id,
         fileName=file_name,
@@ -30,15 +30,15 @@ async def create_output(user_name: str,
     return APISReportOutput.model_validate(output)
 
 async def get_outputs_by_file(apis_report_file_id: int) -> List[APISReportOutput]:
-    outputs = await APISReportOutput.filter(apis_report_file_id=apis_report_file_id).all().prefetch_related('apis_report_file')
+    outputs = await APISReportOutputModel.filter(apis_report_file_id=apis_report_file_id).all()
     return [APISReportOutput.model_validate(o) for o in outputs]
 
 async def generate_apis_report_output(
-    apis_report_file: APISReportFile,
+    apis_report_file: APISReportFileModel,
     request: APISReportOutputGenerateRequest
 ) -> APISReportOutput:
     # Fetch DB records
-    records = await AdvancedPassengerInformation.filter(
+    records = await AdvancedPassengerInformationModel.filter(
         apis_file_id=apis_report_file.id,
         opportunity_name=request.opportunity_name
     ).all()
@@ -67,7 +67,7 @@ async def generate_apis_report_output(
     return output
 
 async def get_file_path(output_id: str) -> str:
-    output = await APISReportOutput.get_or_none(fileName=output_id).prefetch_related('apis_report_file')
+    output = await APISReportOutputModel.get_or_none(fileName=output_id)
     if not output:
         raise FileNotFoundError("Output not found")
     return output.file_path

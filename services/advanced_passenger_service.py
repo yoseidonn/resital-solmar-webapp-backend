@@ -3,11 +3,11 @@ from schemas import AdvancedPassengerInformationCreate, AdvancedPassengerInforma
 from typing import List, Optional
 
 async def get_by_id(info_id: int) -> Optional[AdvancedPassengerInformationRead]:
-    obj = await AdvancedPassengerInformation.get_or_none(id=info_id).prefetch_related('apis_report_file', 'resort_report_file', 'villa')
+    obj = await AdvancedPassengerInformation.get_or_none(id=info_id)
     return AdvancedPassengerInformationRead.model_validate(obj)
 
 async def list_all() -> List[AdvancedPassengerInformationRead]:
-    objs = await AdvancedPassengerInformation.all().prefetch_related('apis_report_file', 'resort_report_file', 'villa')
+    objs = await AdvancedPassengerInformation.all()
     return [AdvancedPassengerInformationRead.model_validate(o) for o in objs]
 
 async def create(data: AdvancedPassengerInformationCreate) -> AdvancedPassengerInformationRead:
@@ -15,7 +15,7 @@ async def create(data: AdvancedPassengerInformationCreate) -> AdvancedPassengerI
     return AdvancedPassengerInformationRead.model_validate(obj)
 
 async def update(info_id: int, data: AdvancedPassengerInformationCreate) -> Optional[AdvancedPassengerInformationRead]:
-    obj = await AdvancedPassengerInformation.get_or_none(id=info_id).prefetch_related('apis_report_file', 'resort_report_file', 'villa')
+    obj = await AdvancedPassengerInformation.get_or_none(id=info_id)
     if not obj:
         return None
     await obj.update_from_dict(data.model_dump())

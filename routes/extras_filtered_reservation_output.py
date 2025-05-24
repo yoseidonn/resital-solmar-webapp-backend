@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import FileResponse
-from models import ResortReportFile, ExtrasFilteredReservationOutput
-from schemas import ExtrasFilteredReservationOutputSchema
+from models import ResortReportFile, ExtrasFilteredReservationOutput as ExtrasFilteredReservationOutputModel
+from schemas import ExtrasFilteredReservationOutput
 from services import extras_filtered_reservation_output_service
 from typing import List, Dict
 import os
@@ -25,7 +25,7 @@ async def generate_output(file_id: int, body: Dict = Body(...)):
     result = await extras_filtered_reservation_output_service.generate_extras_filtered_reservation_summary(resort_report_file, filters, headers, individual_villa_entries)
     return result
 
-@router.get("/by-file/{file_id}", response_model=List[ExtrasFilteredReservationOutputSchema])
+@router.get("/by-file/{file_id}", response_model=List[ExtrasFilteredReservationOutput])
 async def get_outputs_by_file(file_id: int):
     outputs = await extras_filtered_reservation_output_service.get_outputs_by_file(file_id)
     return outputs

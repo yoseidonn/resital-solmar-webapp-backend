@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import FileResponse
-from models import APISReportFile
+from models import APISReportFile as APISReportFileModel
 from schemas.apis_report_output import APISReportOutputGenerateRequest
-from schemas.apis_report_output import APISReportOutputSchema
+from schemas.apis_report_output import APISReportOutput
 from services import apis_report_output_service
 from typing import List
 import os
@@ -16,12 +16,12 @@ async def get_all_outputs():
 
 @router.post("/generate/{file_id}")
 async def generate_output(file_id: int, request: APISReportOutputGenerateRequest = Body(...)):
-    apis_report_file = await APISReportFile.get_or_none(id=file_id)
+    apis_report_file = await APISReportFileModel.get_or_none(id=file_id)
     if not apis_report_file:
         raise HTTPException(status_code=404, detail="APISReportFile not found")
     return await apis_report_output_service.generate_apis_report_output(apis_report_file, request)
 
-@router.get("/by-file/{file_id}", response_model=List[APISReportOutputSchema])
+@router.get("/by-file/{file_id}", response_model=List[APISReportOutput])
 async def get_outputs_by_file(file_id: int):
     outputs = await apis_report_output_service.get_outputs_by_file(file_id)
     return outputs

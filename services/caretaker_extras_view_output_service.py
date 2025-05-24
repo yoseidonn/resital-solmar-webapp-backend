@@ -23,7 +23,7 @@ async def create_output(user_name: str, resort_report_file_id: int, content: str
     return CaretakerExtrasViewOutput.model_validate(output)
 
 async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutput]:
-    outputs = await CaretakerExtrasViewOutputModel.filter(resort_report_file_id=resort_report_file_id).all().prefetch_related('resort_report_file')
+    outputs = await CaretakerExtrasViewOutputModel.filter(resort_report_file_id=resort_report_file_id).all()
     return [CaretakerExtrasViewOutput.model_validate(o) for o in outputs]
 
 async def generate_caretaker_extras_view_output(resort_report_file: ResortReportFile, 
