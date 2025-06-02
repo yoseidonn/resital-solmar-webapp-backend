@@ -7,3 +7,4 @@ from .apis_report_file_service import *
 from .apis_report_output_service import *
 from .caretaker_extras_view_output_service import *
 from .extras_filtered_reservation_output_service import * 
+from .advanced_passenger_service import * 

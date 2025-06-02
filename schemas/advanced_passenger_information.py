@@ -19,7 +19,7 @@ class AdvancedPassengerInformationBase(BaseModel):
     foid_expiry: datetime
     nationality: str
     villa_id: Optional[int]
-    apis_report_file: Optional[int]
+    apis_report_file_id: Optional[int]
 
 
 class AdvancedPassengerInformationCreate(AdvancedPassengerInformationBase):

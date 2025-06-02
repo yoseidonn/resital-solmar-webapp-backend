@@ -8,7 +8,8 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" VARCHAR(255) NOT NULL,
     "phone_number" VARCHAR(50),
-    "villa_assignments" JSONB
+    "assigned_villas" JSONB,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS "villa" (
     "id" SERIAL NOT NULL PRIMARY KEY,
@@ -76,11 +77,13 @@ CREATE TABLE IF NOT EXISTS "advancedpassengerinformation" (
 );
 CREATE TABLE IF NOT EXISTS "caretakerextrasviewoutput" (
     "id" SERIAL NOT NULL PRIMARY KEY,
+    "user_name" VARCHAR(255),
     "fileName" VARCHAR(255) NOT NULL,
     "generatedDate" TIMESTAMPTZ NOT NULL,
     "messages" JSONB,
     "rows" JSONB,
     "content" JSONB,
+    "file_path" VARCHAR(512),
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "resort_report_file_id" INT NOT NULL REFERENCES "resortreportfile" ("id") ON DELETE CASCADE
 );
@@ -96,12 +99,14 @@ CREATE TABLE IF NOT EXISTS "extrasfilteredreservationoutput" (
 );
 CREATE TABLE IF NOT EXISTS "apisreportoutput" (
     "id" SERIAL NOT NULL PRIMARY KEY,
+    "user_name" VARCHAR(255),
     "fileName" VARCHAR(255) NOT NULL,
     "generatedDate" TIMESTAMPTZ NOT NULL,
     "villa" VARCHAR(255),
     "date" VARCHAR(32),
     "rows" JSONB,
     "messages" JSONB,
+    "individual_reservations" JSONB,
     "file_path" VARCHAR(512) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "apis_report_file_id" INT NOT NULL REFERENCES "apisreportfile" ("id") ON DELETE CASCADE

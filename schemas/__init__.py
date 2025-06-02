@@ -7,3 +7,4 @@ from .advanced_passenger_information import AdvancedPassengerInformationBase, Ad
 from .caretaker_extras_view_output import CaretakerExtrasViewOutput
 from .apis_report_output import APISReportOutput
 from .extras_filtered_reservation_output import ExtrasFilteredReservationOutput
+from .file_upload import *

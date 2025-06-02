@@ -41,32 +41,65 @@ async def generate_apis_report_output(
     apis_report_file: APISReportFileModel,
     request: APISReportOutputGenerateRequest
 ) -> APISReportOutput:
-    # Fetch DB records
+    """
+    Generate APIS report output using database records instead of parsing Excel files
+    """
+    # Fetch DB records - use the database models instead of parsing files
     records = await AdvancedPassengerInformationModel.filter(
-        apis_file_id=apis_report_file.id,
+        apis_report_file_id=apis_report_file.id,
         opportunity_name=request.opportunity_name
     ).all()
+    
     # Prepare Excel
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "APIS Report"
     headers = request.headers
     ws.append(headers)
-    for api in records:
-        ws.append([getattr(api, header, '') for header in headers])
+    
+    # Write database records to Excel
+    for passenger_info in records:
+        row_data = []
+        for header in headers:
+            # Convert header to snake_case to match model attributes
+            attr_name = _to_snake_case(header)
+            value = getattr(passenger_info, attr_name, '')
+            
+            # Format dates and datetimes properly
+            if hasattr(passenger_info, attr_name):
+                attr_value = getattr(passenger_info, attr_name)
+                if isinstance(attr_value, datetime):
+                    value = attr_value.strftime('%Y-%m-%d %H:%M:%S')
+                elif hasattr(attr_value, 'isoformat'):  # date objects
+                    value = attr_value.isoformat()
+                else:
+                    value = str(attr_value) if attr_value is not None else ''
+            
+            row_data.append(value)
+        ws.append(row_data)
+    
+    # Add individual villa entries if provided
     for entry in request.individual_villa_entries:
-        ws.append([getattr(entry, header, '') for header in headers])
+        row_data = []
+        for header in headers:
+            attr_name = _to_snake_case(header)
+            value = getattr(entry, attr_name, '') if hasattr(entry, attr_name) else ''
+            row_data.append(str(value))
+        ws.append(row_data)
+    
     # Save Excel to disk
     filename = f"apis_report_output_{apis_report_file.id}_{request.opportunity_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     file_path = os.path.join(OUTPUT_DIR, filename)
     wb.save(file_path)
+    wb.close()
+    
     # Save output to DB
     output = await create_output(
         user_name="system",
         apis_report_file_id=apis_report_file.id,
         file_name=filename,
         file_path=file_path,
-        individual_reservations=[entry.dict() for entry in request.individual_villa_entries],
+        individual_reservations=[entry.dict() for entry in request.individual_villa_entries] if request.individual_villa_entries else [],
     )
     return output
 
@@ -78,4 +111,5 @@ async def get_file_path(output_id: str) -> str:
     return await serialize(serializer)["file_path"]
 
 def _to_snake_case(header: str) -> str:
-    return header.lower().replace(" ", "_") 
+    """Convert header to snake_case to match model field names"""
+    return header.lower().replace(" ", "_").replace("-", "_") 

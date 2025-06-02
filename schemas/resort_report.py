@@ -24,7 +24,7 @@ class ResortReportBase(BaseModel):
     live_villa_manager: str
     dt_aff_nane: str
     resort_report_notes: str
-    resort_report_file: Optional[int]
+    resort_report_file_id: Optional[int]
 
 class ResortReportCreate(ResortReportBase):
     pass
