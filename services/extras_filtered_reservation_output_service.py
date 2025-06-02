@@ -6,12 +6,13 @@ from typing import List, Dict, Any
 from datetime import datetime, timezone
 import openpyxl
 import os
-
+from utils.serialization import serialize
 OUTPUT_DIR = "media/extras_filtered_reservation_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 async def get_all_outputs() -> List[ExtrasFilteredReservationOutput]:
-    return [ExtrasFilteredReservationOutput.model_validate(o) for o in await ExtrasFilteredReservationOutputModel.all()]
+    serializer = [ExtrasFilteredReservationOutput.model_validate(o) for o in await ExtrasFilteredReservationOutputModel.all()]
+    return [await serialize(s) for s in serializer]
 
 async def create_output(resort_report_file_id: int, 
                         file_name: str, 
@@ -27,7 +28,8 @@ async def create_output(resort_report_file_id: int,
         grouped_reservations=grouped_reservations,
         file_path=file_path
     )
-    return ExtrasFilteredReservationOutput.model_validate(output)
+    serializer = ExtrasFilteredReservationOutput.model_validate(output)
+    return await serialize(serializer)
 
 async def generate_extras_filtered_reservation_summary(resort_report_file: ResortReportFile, 
                                                        filters: Dict[str, List[str]], 
@@ -58,7 +60,9 @@ async def generate_extras_filtered_reservation_summary(resort_report_file: Resor
     file_name = f"filtered_reservations_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}.xlsx"
     file_path = os.path.join(OUTPUT_DIR, file_name)
     _create_excel_file(file_path, grouped, headers)
-    return await create_output(resort_report_file.id, file_name, file_path, filters, grouped)
+    output = await create_output(resort_report_file.id, file_name, file_path, filters, grouped)
+    serializer = ExtrasFilteredReservationOutput.model_validate(output)
+    return await serialize(serializer)
 
 def _create_excel_file(file_path: str, grouped: Dict[str, Any], headers: List[str]):
     wb = openpyxl.Workbook()
@@ -75,11 +79,13 @@ def _create_excel_file(file_path: str, grouped: Dict[str, Any], headers: List[st
 
 async def get_outputs_by_file(resort_report_file_id: int) -> List[ExtrasFilteredReservationOutput]:
     outputs = await ExtrasFilteredReservationOutputModel.filter(resort_report_file_id=resort_report_file_id).all()
-    return [ExtrasFilteredReservationOutput.model_validate(o) for o in outputs]
+    serializer = [ExtrasFilteredReservationOutput.model_validate(o) for o in outputs]
+    return [await serialize(s) for s in serializer]
 
 async def get_file_path(output_id: str) -> str:
     output = await ExtrasFilteredReservationOutputModel.get_or_none(id=output_id)
     if not output:
         raise FileNotFoundError("Output not found")
-    return output.file_path
+    serializer = ExtrasFilteredReservationOutput.model_validate(output)
+    return await serialize(serializer)["file_path"]
  

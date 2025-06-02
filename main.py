@@ -12,6 +12,7 @@ from routes import (
     apis_report_output_router,
     extras_filtered_reservation_output_router,
 )
+from database import TORTOISE_ORM
 
 app = FastAPI()
 
@@ -20,8 +21,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # Frontend URL
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "Content-Range"],
+    max_age=3600
 )
 
 app.include_router(caretaker_router, prefix="/caretakers", tags=["Care Takers"])
@@ -36,8 +39,7 @@ app.include_router(extras_filtered_reservation_output_router, prefix="/extras-fi
 
 register_tortoise(
     app,
-    db_url="sqlite://db.sqlite3",
-    modules={"models": ["models"]},
+    config=TORTOISE_ORM,
     generate_schemas=True,
     add_exception_handlers=True,
 )

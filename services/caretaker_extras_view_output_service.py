@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 import openpyxl
 import os
 from datetime import datetime, timezone
+from utils.serialization import serialize
 
 OUTPUT_DIR = "media/caretaker_extras_view_outputs"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -20,11 +21,13 @@ async def create_output(user_name: str, resort_report_file_id: int, content: str
         file_path=file_path,
         generatedDate=datetime.now(timezone.utc),
     )
-    return CaretakerExtrasViewOutput.model_validate(output)
+    serializer = CaretakerExtrasViewOutput.model_validate(output)
+    return await serialize(serializer)
 
 async def get_outputs_by_file(resort_report_file_id: int) -> List[CaretakerExtrasViewOutput]:
     outputs = await CaretakerExtrasViewOutputModel.filter(resort_report_file_id=resort_report_file_id).all()
-    return [CaretakerExtrasViewOutput.model_validate(o) for o in outputs]
+    serializer = [CaretakerExtrasViewOutput.model_validate(o) for o in outputs]
+    return [await serialize(s) for s in serializer]
 
 async def generate_caretaker_extras_view_output(resort_report_file: ResortReportFile, 
                                                 selected_users: List[Any], 
